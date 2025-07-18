@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct ContentView: View {
-    let rows = 20
+    let rows = 18
     let columns = 10
     
     // Store tapped positions
