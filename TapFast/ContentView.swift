@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import AVFoundation
+import UIKit
 
 
 struct ContentView: View {
     let rows = 18
     let columns = 10
-    
+    @State var audioPlayer:AVAudioPlayer?
+
+     @State var isPlaying : Bool = false
     // Store tapped positions
         @State private var tappedSquares: Set<[Int]> = []
 
@@ -25,11 +29,13 @@ struct ContentView: View {
                         ForEach(0..<columns, id: \.self) { column in
                             let isTapped = tappedSquares.contains([row, column])
                             Rectangle()
-                                .fill(isTapped ? Color.black : randomColor())
+                                .fill(isTapped ? Color.white : randomColor())
                                 .frame(width: squareSize, height: squareSize)
                                 .border(Color.white, width: 1)
                                 .onTapGesture {
                                     tappedSquares.insert([row, column])
+                                    playPopSound()
+                                    triggerHaptic()
                                     print("Tapped square at row \(row), column \(column)")
                                 }
                         }
@@ -54,6 +60,32 @@ struct ContentView: View {
             blue: .random(in: 0.4...1)
         )
     }
+    
+     func playPopSound() {
+         if let path = Bundle.main.path(forResource: "pop2025", ofType: ".mp3") {
+
+              self.audioPlayer = AVAudioPlayer()
+
+              self.isPlaying.toggle()
+
+              let url = URL(fileURLWithPath: path)
+
+              do {
+                  self.audioPlayer = try AVAudioPlayer(contentsOf: url)
+                  self.audioPlayer?.prepareToPlay()
+                  self.audioPlayer?.play()
+              }catch {
+                  print("Error")
+              }
+          }
+    }
+    
+    func triggerHaptic() {
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.prepare() // Optional but helps responsiveness
+        impact.impactOccurred()
+    }
+
 }
 #Preview {
     ContentView()
