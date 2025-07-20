@@ -18,38 +18,70 @@ struct ContentView: View {
      @State var isPlaying : Bool = false
     // Store tapped positions
         @State private var tappedSquares: Set<[Int]> = []
-
+    @State var imageName = String(format: "cat%03d", Int.random(in: 1...20))
+    
     var body: some View {
-        GeometryReader { geometry in
-            let squareSize = geometry.size.width / CGFloat(columns)
-
-            VStack(spacing: 0) {
-                ForEach(0..<rows, id: \.self) { row in
-                    HStack(spacing: 0) {
-                        ForEach(0..<columns, id: \.self) { column in
-                            let isTapped = tappedSquares.contains([row, column])
-                            Rectangle()
-                                .fill(isTapped ? Color.white : randomColor())
-                                .frame(width: squareSize, height: squareSize)
-                                .border(Color.white, width: 1)
-                                .onTapGesture {
-                                    tappedSquares.insert([row, column])
-                                    playPopSound()
-                                    triggerHaptic()
-                                    print("Tapped square at row \(row), column \(column)")
+        ZStack {
+            // Background image
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
+            
+            // Grid overlay
+            GeometryReader { geometry in
+                let squareSize = min(geometry.size.width / CGFloat(columns),
+                                     geometry.size.height / CGFloat(rows))
+                
+                VStack(spacing: 0) {
+                    Spacer()
+                    
+                    VStack(spacing: 0) {
+                        ForEach(0..<rows, id: \.self) { row in
+                            HStack(spacing: 0) {
+                                ForEach(0..<columns, id: \.self) { column in
+                                    let isTapped = tappedSquares.contains([row, column])
+                                    Rectangle()
+                                        .fill(isTapped ? Color.white.opacity(0.0) : randomColor())
+                                        .frame(width: squareSize, height: squareSize)
+                                        .border(isTapped ? Color.clear : Color.white.opacity(0.3), width: 1)
+                                        .onTapGesture {
+                                            tappedSquares.insert([row, column])
+                                            playPopSound()
+                                            triggerHaptic()
+                                            print("Tapped square at row \(row), column \(column)")
+                                        }
                                 }
+                            }
                         }
                     }
-                   
+                    .frame(width: squareSize * CGFloat(columns),
+                           height: squareSize * CGFloat(rows))
+                    .background(Color.clear)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    //                        Button("Reset") {
+                    //                            tappedSquares.removeAll()
+                    //                            imageName = String(format: "cat%03d", Int.random(in: 1...20))
+                    //                        }
+                    //                        .padding(.top)
+                    
+                    
                 }
-                Button("Reset", action: {
-                    tappedSquares.removeAll()               }).padding(.top)
                 
             }
-            .frame(maxHeight: geometry.size.height)
             
         }
-        //.edgesIgnoringSafeArea(.all)
+
+            Button("Reset") {
+                tappedSquares.removeAll()
+                imageName = String(format: "cat%03d", Int.random(in: 1...20))
+            }
+            .font(.headline)
+            .padding(.top)
+        
+        
     }
 
     // Generate a random color
