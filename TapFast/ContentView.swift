@@ -17,16 +17,18 @@ struct ContentView: View {
 
      @State var isPlaying : Bool = false
     // Store tapped positions
-        @State private var tappedSquares: Set<[Int]> = []
-    @State var imageName = String(format: "cat%03d", Int.random(in: 1...20))
+    @State private var tappedSquares: Set<[Int]> = []
+    @State private var catCounter = 1
+    @State var imageName = String(format: "cat%03d", 1)
     
     var body: some View {
         ZStack {
             // Background image
             Image(imageName)
                 .resizable()
-                .scaledToFill()
-                .edgesIgnoringSafeArea(.all)
+                .aspectRatio(contentMode: .fit)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .clipped()
             
             // Grid overlay
             GeometryReader { geometry in
@@ -58,29 +60,23 @@ struct ContentView: View {
                     .frame(width: squareSize * CGFloat(columns),
                            height: squareSize * CGFloat(rows))
                     .background(Color.clear)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    //                        Button("Reset") {
-                    //                            tappedSquares.removeAll()
-                    //                            imageName = String(format: "cat%03d", Int.random(in: 1...20))
-                    //                        }
-                    //                        .padding(.top)
-                    
                     
                 }
                 
             }
             
         }
-
-            Button("Reset") {
-                tappedSquares.removeAll()
-                imageName = String(format: "cat%03d", Int.random(in: 1...20))
+        // TopMost Layer in ZStack
+        Button("Reset") {
+            tappedSquares.removeAll()
+            catCounter += 1
+            if catCounter > 20{
+                catCounter = 1
             }
-            .font(.headline)
-            .padding(.top)
-        
+            imageName = String(format: "cat%03d", catCounter)
+        }
+        .font(.headline)
+        .padding(.top)
         
     }
 
